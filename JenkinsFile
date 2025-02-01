@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SampathPandula/Ecom_Repo_03.git'
+            }
+        }
+
+        stage('Change to Terraform Directory') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform validate'
+                    sh 'terraform plan -out=tfplan'
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "✅ Terraform Applied Successfully!"
+        }
+        failure {
+            echo "❌ Terraform Execution Failed!"
+        }
+    }
+}
+
+
